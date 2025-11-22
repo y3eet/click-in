@@ -14,9 +14,9 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 	userService := services.NewUserService(userRepo)
 	userHandler := handlers.NewUserHandler(userService)
 
-	v1 := r.Group("/api")
+	api := r.Group("/api")
 	{
-		users := v1.Group("/users")
+		users := api.Group("/users")
 		{
 			users.POST("", userHandler.CreateUser)
 			users.GET("/:id", userHandler.GetUser)
