@@ -7,14 +7,19 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/markbates/goth/gothic"
+	"github.com/y3eet/click-in/internal/config"
+	"github.com/y3eet/click-in/internal/models"
+	"github.com/y3eet/click-in/internal/services"
 )
 
-type AuthHandler struct{}
-
-func NewAuthHnadler() *AuthHandler {
-	return &AuthHandler{}
+type AuthHandler struct {
+	userService *services.UserService
+	cfg         *config.Config
 }
 
+func NewAuthHandler(userService *services.UserService, cfg *config.Config) *AuthHandler {
+	return &AuthHandler{userService: userService, cfg: cfg}
+}
 func (a *AuthHandler) Login(c *gin.Context) {
 	provider := strings.TrimSpace(c.Param("provider"))
 	if provider == "" {
@@ -49,10 +54,19 @@ func (a *AuthHandler) Callback(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"status": "authenticated",
-		"user":   user,
+	//Upsert user to DB here
+
+	err = a.userService.UpsertUser(&models.User{
+		Email:      user.Email,
+		Username:   user.Name,
+		AvatarURL:  user.AvatarURL,
+		Provider:   user.Provider,
+		ProviderID: user.UserID,
 	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to upsert user"})
+		return
+	}
 }
 
 func (a *AuthHandler) Logout(c *gin.Context) {

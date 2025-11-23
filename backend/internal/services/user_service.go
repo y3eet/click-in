@@ -20,3 +20,7 @@ func (s *UserService) GetUserByID(id uint) (*models.User, error) {
 func (s *UserService) GetAllUsers() ([]models.User, error) {
 	return s.repo.GetAll()
 }
+
+func (s *UserService) UpsertUser(user *models.User) error {
+	return s.repo.Upsert(user)
+}

@@ -17,6 +17,13 @@ func (r *UserRepository) Create(user *models.User) error {
 	return r.db.Create(user).Error
 }
 
+func (r *UserRepository) Upsert(user *models.User) error {
+	return r.db.
+		Where(&models.User{Email: user.Email, ID: user.ID, Provider: user.Provider}).
+		Assign(user).
+		FirstOrCreate(user).Error
+}
+
 func (r *UserRepository) FindByEmail(email string) (*models.User, error) {
 	var user models.User
 	err := r.db.Where(&models.User{Email: email}).First(&user).Error
