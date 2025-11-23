@@ -2,19 +2,20 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/y3eet/click-in/internal/config"
 	"github.com/y3eet/click-in/internal/handlers"
 	"github.com/y3eet/click-in/internal/repositories"
 	"github.com/y3eet/click-in/internal/services"
 	"gorm.io/gorm"
 )
 
-func SetupRoutes(r *gin.Engine, db *gorm.DB) {
+func SetupRoutes(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
 	// Initialize layers
 	userRepo := repositories.NewUserRepository(db)
 	userService := services.NewUserService(userRepo)
 	userHandler := handlers.NewUserHandler(userService)
 
-	authHandler := handlers.NewAuthHnadler()
+	authHandler := handlers.NewAuthHandler(userService, cfg)
 
 	api := r.Group("/api")
 	{

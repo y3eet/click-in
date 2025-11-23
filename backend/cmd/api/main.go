@@ -20,7 +20,7 @@ func main() {
 	}
 
 	r := gin.Default()
-	routes.SetupRoutes(r, db)
+	routes.SetupRoutes(r, db, cfg)
 
 	if err := r.Run(":" + cfg.Port); err != nil {
 		log.Fatal("Failed to start server:", err)
