@@ -16,6 +16,7 @@ type Config struct {
 	GoogleClientID     string
 	GoogleClientSecret string
 	IsProd             bool
+	BaseUrl            string
 }
 
 func Load() *Config {
@@ -24,12 +25,14 @@ func Load() *Config {
 	}
 
 	return &Config{
-		Port:               getEnv("PORT", "8080"),
+		Port:               getEnv("PORT", "9000"),
 		DatabaseURL:        getEnv("DATABASE_URL", ""),
 		JWTSecret:          getEnv("JWT_SECRET", ""),
+		SecretKey:          getEnv("SECRET_KEY", ""),
 		GoogleClientID:     getEnv("GOOGLE_CLIENT_ID", ""),
 		GoogleClientSecret: getEnv("GOOGLE_CLIENT_SECRET", ""),
 		IsProd:             getEnvBool("IS_PROD", false),
+		BaseUrl:            getEnv("BASE_URL", "http://localhost:"+getEnv("PORT", "9000")),
 	}
 }
 
