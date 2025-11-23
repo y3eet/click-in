@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/y3eet/click-in/internal/auth"
 	"github.com/y3eet/click-in/internal/config"
 	"github.com/y3eet/click-in/internal/database"
 	"github.com/y3eet/click-in/internal/routes"
@@ -11,6 +12,7 @@ import (
 
 func main() {
 	cfg := config.Load()
+	auth.NewAuth(cfg)
 
 	db, err := database.Connect(cfg.DatabaseURL)
 	if err != nil {

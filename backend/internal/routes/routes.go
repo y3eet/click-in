@@ -14,13 +14,22 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 	userService := services.NewUserService(userRepo)
 	userHandler := handlers.NewUserHandler(userService)
 
+	authHandler := handlers.NewAuthHnadler()
+
 	api := r.Group("/api")
 	{
 		users := api.Group("/users")
 		{
-			users.POST("", userHandler.CreateUser)
 			users.GET("/:id", userHandler.GetUser)
 			users.GET("", userHandler.GetAllUsers)
 		}
+
+	}
+	auth := r.Group("/auth")
+	{
+		auth.GET("/:provider", authHandler.Login)
+		auth.GET("/:provider/callback", authHandler.Callback)
+		auth.POST("/:provider/callback", authHandler.Callback)
+		auth.POST("/logout", authHandler.Logout)
 	}
 }
