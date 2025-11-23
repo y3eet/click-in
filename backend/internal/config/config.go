@@ -11,6 +11,7 @@ import (
 type Config struct {
 	Port               string
 	DatabaseURL        string
+	WebURL             string
 	JWTSecret          string
 	SecretKey          string
 	GoogleClientID     string
@@ -27,6 +28,7 @@ func Load() *Config {
 	return &Config{
 		Port:               getEnv("PORT", "9000"),
 		DatabaseURL:        getEnv("DATABASE_URL", ""),
+		WebURL:             getEnv("WEB_URL", "http://localhost:3000"),
 		JWTSecret:          getEnv("JWT_SECRET", ""),
 		SecretKey:          getEnv("SECRET_KEY", ""),
 		GoogleClientID:     getEnv("GOOGLE_CLIENT_ID", ""),
