@@ -19,7 +19,7 @@ func (r *UserRepository) Create(user *models.User) error {
 
 func (r *UserRepository) FindByEmail(email string) (*models.User, error) {
 	var user models.User
-	err := r.db.Where("email = ?", email).First(&user).Error
+	err := r.db.Where(&models.User{Email: email}).First(&user).Error
 	return &user, err
 }
 
@@ -31,6 +31,6 @@ func (r *UserRepository) FindByID(id uint) (*models.User, error) {
 
 func (r *UserRepository) GetAll() ([]models.User, error) {
 	var users []models.User
-	err := r.db.Find(&users)
-	return users, err.Error
+	err := r.db.Find(&users).Error
+	return users, err
 }

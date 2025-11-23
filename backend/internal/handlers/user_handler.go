@@ -16,28 +16,6 @@ func NewUserHandler(service *services.UserService) *UserHandler {
 	return &UserHandler{service: service}
 }
 
-type CreateUserRequest struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6"`
-	Username string `json:"username" binding:"required"`
-}
-
-func (h *UserHandler) CreateUser(c *gin.Context) {
-	var req CreateUserRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	user, err := h.service.CreateUser(req.Email, req.Password, req.Username)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user: " + err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusCreated, user)
-}
-
 func (h *UserHandler) GetUser(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
