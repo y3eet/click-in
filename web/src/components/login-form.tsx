@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Field, FieldDescription, FieldGroup } from "@/components/ui/field";
-import Image from "next/image";
 
 export function LoginForm({
   className,
@@ -64,13 +63,7 @@ export function LoginForm({
             </FieldGroup>
           </div>
           <div className="bg-muted relative hidden md:block">
-            <Image
-              width={200}
-              height={200}
-              src="/placeholder.svg"
-              alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-            />
+            {/* <Pointer /> */}
           </div>
         </CardContent>
       </Card>
