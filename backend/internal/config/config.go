@@ -18,6 +18,10 @@ type Config struct {
 	GoogleClientSecret string
 	IsProd             bool
 	BaseUrl            string
+
+	JwtAccessSecret   string
+	JwtExchangeSecret string
+	JwtRefreshSecret  string
 }
 
 func Load() *Config {
@@ -35,7 +39,12 @@ func Load() *Config {
 		GoogleClientSecret: getEnv("GOOGLE_CLIENT_SECRET", ""),
 		IsProd:             getEnvBool("IS_PROD", false),
 		BaseUrl:            getEnv("BASE_URL", "http://localhost:"+getEnv("PORT", "9000")),
+
+		JwtAccessSecret:    getEnv("JWT_ACCESS_SECRET", ""),
+		JwtExchangeSecret:  getEnv("JWT_EXCHANGE_SECRET", ""),
+		JwtRefreshSecret:   getEnv("JWT_REFRESH_SECRET", ""),
 	}
+
 }
 
 func getEnv(key, fallback string) string {
