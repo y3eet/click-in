@@ -6,52 +6,49 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/y3eet/click-in/internal/config"
+	"github.com/y3eet/click-in/internal/models"
 )
-
-// Define your secret key (in production, use environment variables)
-var secretKey = []byte("your-secret-key-here")
 
 const (
 	accessTokenTTL   = 24 * time.Hour
 	exchangeTokenTTL = 5 * time.Minute
 )
 
+// JWTManager encapsulates token operations bound to a config.
+type JWTManager struct {
+	cfg *config.Config
+}
+
+func NewJWT(cfg *config.Config) *JWTManager {
+	return &JWTManager{cfg: cfg}
+}
+
 // Custom claims structure
 type Claims struct {
-	UserID   string `json:"user_id"`
-	Username string `json:"username"`
+	models.User
 	jwt.RegisteredClaims
 }
 
 type ExchangeClaims struct {
-	Email string `json:"email"`
+	UserID string `json:"user_id"`
 	jwt.RegisteredClaims
 }
 
-// EncodeJWT creates a new JWT token. Deprecated: use EncodeAccessToken.
-func EncodeJWT(userID, username string) (string, error) {
-	return EncodeAccessToken(userID, username)
-}
-
-// DecodeJWT validates and decodes a JWT token. Deprecated: use DecodeAccessToken.
-func DecodeJWT(tokenString string) (*Claims, error) {
-	return DecodeAccessToken(tokenString)
-}
-
 // EncodeAccessToken creates a signed access token with user claims.
-func EncodeAccessToken(userID, username string) (string, error) {
+
+func (m *JWTManager) EncodeAccessToken(userModel models.User) (string, error) {
 	claims := Claims{
-		UserID:           userID,
-		Username:         username,
+		User:             userModel,
 		RegisteredClaims: defaultRegisteredClaims(accessTokenTTL),
 	}
 
-	return signToken(claims)
+	return m.signToken(claims)
 }
 
 // DecodeAccessToken validates and decodes an access token into Claims.
-func DecodeAccessToken(tokenString string) (*Claims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, signingKeyFunc)
+func (m *JWTManager) DecodeAccessToken(tokenString string) (*Claims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, m.signingKeyFunc)
 	if err != nil {
 		return nil, err
 	}
@@ -64,18 +61,18 @@ func DecodeAccessToken(tokenString string) (*Claims, error) {
 }
 
 // EncodeExchangeToken creates a short-lived token used for login exchanges.
-func EncodeExchangeToken(email string) (string, error) {
+func (m *JWTManager) EncodeExchangeToken(userID string) (string, error) {
 	claims := ExchangeClaims{
-		Email:            email,
+		UserID:           userID,
 		RegisteredClaims: defaultRegisteredClaims(exchangeTokenTTL),
 	}
 
-	return signToken(claims)
+	return m.signToken(claims)
 }
 
 // DecodeExchangeToken validates and decodes an exchange token into ExchangeClaims.
-func DecodeExchangeToken(tokenString string) (*ExchangeClaims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &ExchangeClaims{}, signingKeyFunc)
+func (m *JWTManager) DecodeExchangeToken(tokenString string) (*ExchangeClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &ExchangeClaims{}, m.signingKeyFunc)
 	if err != nil {
 		return nil, err
 	}
@@ -88,17 +85,55 @@ func DecodeExchangeToken(tokenString string) (*ExchangeClaims, error) {
 }
 
 // signToken signs any jwt.Claims with the configured key.
-func signToken(claims jwt.Claims) (string, error) {
+func (m *JWTManager) signToken(claims jwt.Claims) (string, error) {
+	if err := m.ensureConfig(); err != nil {
+		return "", err
+	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(secretKey)
+	key, err := m.secretForClaims(claims)
+	if err != nil {
+		return "", err
+	}
+
+	return token.SignedString(key)
 }
 
 // signingKeyFunc centralizes validation of the signing algorithm/key.
-func signingKeyFunc(token *jwt.Token) (interface{}, error) {
+func (m *JWTManager) signingKeyFunc(token *jwt.Token) (interface{}, error) {
 	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 		return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 	}
-	return secretKey, nil
+
+	if err := m.ensureConfig(); err != nil {
+		return nil, err
+	}
+
+	return m.secretForClaims(token.Claims)
+}
+
+func (m *JWTManager) ensureConfig() error {
+	if m == nil || m.cfg == nil {
+		return errors.New("jwt manager is not configured")
+	}
+	return nil
+}
+
+func (m *JWTManager) secretForClaims(claims interface{}) ([]byte, error) {
+	switch claims.(type) {
+	case Claims, *Claims:
+		if m.cfg.JwtAccessSecret == "" {
+			return nil, errors.New("jwt access secret is not configured")
+		}
+		return []byte(m.cfg.JwtAccessSecret), nil
+	case ExchangeClaims, *ExchangeClaims:
+		if m.cfg.JwtExchangeSecret == "" {
+			return nil, errors.New("jwt exchange secret is not configured")
+		}
+		return []byte(m.cfg.JwtExchangeSecret), nil
+	default:
+		return nil, errors.New("unknown claims type")
+	}
 }
 
 // defaultRegisteredClaims builds RegisteredClaims with shared metadata.
