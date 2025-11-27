@@ -18,6 +18,7 @@ type Config struct {
 	GoogleClientSecret string
 	IsProd             bool
 	BaseUrl            string
+	FrontendURL        string
 
 	JwtAccessSecret   string
 	JwtExchangeSecret string
@@ -39,10 +40,11 @@ func Load() *Config {
 		GoogleClientSecret: getEnv("GOOGLE_CLIENT_SECRET", ""),
 		IsProd:             getEnvBool("IS_PROD", false),
 		BaseUrl:            getEnv("BASE_URL", "http://localhost:"+getEnv("PORT", "9000")),
+		FrontendURL:        getEnv("FRONTEND_URL", "http://localhost:3000"),
 
-		JwtAccessSecret:    getEnv("JWT_ACCESS_SECRET", ""),
-		JwtExchangeSecret:  getEnv("JWT_EXCHANGE_SECRET", ""),
-		JwtRefreshSecret:   getEnv("JWT_REFRESH_SECRET", ""),
+		JwtAccessSecret:   getEnv("JWT_ACCESS_SECRET", ""),
+		JwtExchangeSecret: getEnv("JWT_EXCHANGE_SECRET", ""),
+		JwtRefreshSecret:  getEnv("JWT_REFRESH_SECRET", ""),
 	}
 
 }
