@@ -80,11 +80,7 @@ func (a *AuthHandler) Callback(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message":        "authentication successful",
-		"exchange_token": exchangeToken,
-		"user":           user,
-	})
+	c.Redirect(http.StatusTemporaryRedirect, a.cfg.FrontendURL+"/auth/callback?exchange_token="+exchangeToken)
 }
 
 func (a *AuthHandler) Exchange(c *gin.Context) {
@@ -117,6 +113,10 @@ func (a *AuthHandler) Exchange(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to sign access token: " + err.Error()})
 		return
 	}
+
+	// Set access token in HTTP-only cookie (optional)
+	// TODO: Add refresh token handling
+	c.SetCookie("access_token", accessToken, 3600, "/", "", a.cfg.IsProd, true)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message":      "exchange successful",
