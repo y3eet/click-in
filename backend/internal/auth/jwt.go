@@ -10,11 +10,6 @@ import (
 	"github.com/y3eet/click-in/internal/models"
 )
 
-const (
-	accessTokenTTL   = 24 * time.Hour
-	exchangeTokenTTL = 5 * time.Minute
-)
-
 // JWTManager encapsulates token operations bound to a config.
 type JWTManager struct {
 	cfg *config.Config
@@ -24,6 +19,12 @@ func NewJWT(cfg *config.Config) *JWTManager {
 	return &JWTManager{cfg: cfg}
 }
 
+const (
+	accessTokenTTL   = 1 * time.Hour      // 1 hour
+	refreshTokenTTL  = 7 * 24 * time.Hour // 7 days
+	exchangeTokenTTL = 5 * time.Minute    // 5 minutes
+)
+
 // Custom claims structure
 type Claims struct {
 	models.User
@@ -31,16 +32,33 @@ type Claims struct {
 }
 
 type ExchangeClaims struct {
-	UserID string `json:"user_id"`
+	UserID uint `json:"user_id"`
 	jwt.RegisteredClaims
 }
 
 // EncodeAccessToken creates a signed access token with user claims.
-
 func (m *JWTManager) EncodeAccessToken(userModel models.User) (string, error) {
 	claims := Claims{
 		User:             userModel,
 		RegisteredClaims: defaultRegisteredClaims(accessTokenTTL),
+	}
+
+	return m.signToken(claims)
+}
+
+func (m *JWTManager) EncodeRefreshToken(userModel models.User) (string, error) {
+	claims := Claims{
+		User:             userModel,
+		RegisteredClaims: defaultRegisteredClaims(refreshTokenTTL),
+	}
+	return m.signToken(claims)
+}
+
+// EncodeExchangeToken creates a short-lived token used for login exchanges.
+func (m *JWTManager) EncodeExchangeToken(userID uint) (string, error) {
+	claims := ExchangeClaims{
+		UserID:           userID,
+		RegisteredClaims: defaultRegisteredClaims(exchangeTokenTTL),
 	}
 
 	return m.signToken(claims)
@@ -60,16 +78,6 @@ func (m *JWTManager) DecodeAccessToken(tokenString string) (*Claims, error) {
 	return nil, errors.New("invalid access token")
 }
 
-// EncodeExchangeToken creates a short-lived token used for login exchanges.
-func (m *JWTManager) EncodeExchangeToken(userID string) (string, error) {
-	claims := ExchangeClaims{
-		UserID:           userID,
-		RegisteredClaims: defaultRegisteredClaims(exchangeTokenTTL),
-	}
-
-	return m.signToken(claims)
-}
-
 // DecodeExchangeToken validates and decodes an exchange token into ExchangeClaims.
 func (m *JWTManager) DecodeExchangeToken(tokenString string) (*ExchangeClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &ExchangeClaims{}, m.signingKeyFunc)
@@ -82,6 +90,19 @@ func (m *JWTManager) DecodeExchangeToken(tokenString string) (*ExchangeClaims, e
 	}
 
 	return nil, errors.New("invalid exchange token")
+}
+
+func (m *JWTManager) DecodeRefreshToken(tokenString string) (*Claims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, m.signingKeyFunc)
+	if err != nil {
+		return nil, err
+	}
+
+	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, errors.New("invalid refresh token")
 }
 
 // signToken signs any jwt.Claims with the configured key.
