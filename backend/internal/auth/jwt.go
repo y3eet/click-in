@@ -8,6 +8,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/y3eet/click-in/internal/config"
 	"github.com/y3eet/click-in/internal/models"
+	"github.com/y3eet/click-in/internal/constants"
 )
 
 // JWTManager encapsulates token operations bound to a config.
@@ -19,11 +20,7 @@ func NewJWT(cfg *config.Config) *JWTManager {
 	return &JWTManager{cfg: cfg}
 }
 
-const (
-	accessTokenTTL   = 1 * time.Hour      // 1 hour
-	refreshTokenTTL  = 7 * 24 * time.Hour // 7 days
-	exchangeTokenTTL = 5 * time.Minute    // 5 minutes
-)
+
 
 // Custom claims structure
 type Claims struct {
@@ -40,7 +37,7 @@ type ExchangeClaims struct {
 func (m *JWTManager) EncodeAccessToken(userModel models.User) (string, error) {
 	claims := Claims{
 		User:             userModel,
-		RegisteredClaims: defaultRegisteredClaims(accessTokenTTL),
+		RegisteredClaims: defaultRegisteredClaims(constants.AccessTokenTTL),
 	}
 
 	return m.signToken(claims)
@@ -49,7 +46,7 @@ func (m *JWTManager) EncodeAccessToken(userModel models.User) (string, error) {
 func (m *JWTManager) EncodeRefreshToken(userModel models.User) (string, error) {
 	claims := Claims{
 		User:             userModel,
-		RegisteredClaims: defaultRegisteredClaims(refreshTokenTTL),
+		RegisteredClaims: defaultRegisteredClaims(constants.RefreshTokenTTL),
 	}
 	return m.signToken(claims)
 }
@@ -58,7 +55,7 @@ func (m *JWTManager) EncodeRefreshToken(userModel models.User) (string, error) {
 func (m *JWTManager) EncodeExchangeToken(userID uint) (string, error) {
 	claims := ExchangeClaims{
 		UserID:           userID,
-		RegisteredClaims: defaultRegisteredClaims(exchangeTokenTTL),
+		RegisteredClaims: defaultRegisteredClaims(constants.ExchangeTokenTTL),
 	}
 
 	return m.signToken(claims)

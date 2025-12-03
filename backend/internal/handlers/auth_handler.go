@@ -12,6 +12,7 @@ import (
 
 	"github.com/y3eet/click-in/internal/auth"
 	"github.com/y3eet/click-in/internal/config"
+	"github.com/y3eet/click-in/internal/constants"
 	"github.com/y3eet/click-in/internal/models"
 	"github.com/y3eet/click-in/internal/services"
 )
@@ -132,8 +133,8 @@ func (a *AuthHandler) Exchange(c *gin.Context) {
 		ExpiresAt:      time.Now().Add(7 * 24 * time.Hour),
 	})
 
-	c.SetCookie("access_token", accessToken, int(time.Hour.Seconds()), "/", "", a.cfg.IsProd, true)
-	c.SetCookie("refresh_token", refreshToken, int(time.Hour.Seconds()*7*24), "/", "", a.cfg.IsProd, true)
+	c.SetCookie("access_token", accessToken, int(constants.AccessTokenTTL.Seconds()), "/", "", a.cfg.IsProd, true)
+	c.SetCookie("refresh_token", refreshToken, int(constants.RefreshTokenTTL.Seconds()), "/", "", a.cfg.IsProd, true)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message":      "exchange successful",
