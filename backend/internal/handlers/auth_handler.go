@@ -3,8 +3,8 @@ package handlers
 import (
 	"context"
 	"net/http"
-	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/markbates/goth/gothic"
@@ -15,17 +15,18 @@ import (
 )
 
 type AuthHandler struct {
-	userService *services.UserService
-	cfg         *config.Config
-	jwt         *auth.JWTManager
+	userService         *services.UserService
+	refreshTokenService *services.RefreshTokenService
+	cfg                 *config.Config
+	jwt                 *auth.JWTManager
 }
 
 type ExchangeRequestBody struct {
 	ExchangeToken string `json:"exchange_token"`
 }
 
-func NewAuthHandler(userService *services.UserService, cfg *config.Config) *AuthHandler {
-	return &AuthHandler{userService: userService, cfg: cfg, jwt: auth.NewJWT(cfg)}
+func NewAuthHandler(userService *services.UserService, refreshToksetService *services.RefreshTokenService, cfg *config.Config) *AuthHandler {
+	return &AuthHandler{userService: userService, refreshTokenService: refreshToksetService, cfg: cfg, jwt: auth.NewJWT(cfg)}
 }
 func (a *AuthHandler) Login(c *gin.Context) {
 	provider := strings.TrimSpace(c.Param("provider"))
@@ -62,19 +63,19 @@ func (a *AuthHandler) Callback(c *gin.Context) {
 		return
 	}
 	//Upsert user to DB here
-
-	err = a.userService.UpsertUser(&models.User{
+	var userDB = models.User{
 		Email:      user.Email,
 		Username:   user.Name,
 		AvatarURL:  user.AvatarURL,
 		Provider:   user.Provider,
 		ProviderID: user.UserID,
-	})
+	}
+	err = a.userService.UpsertUser(&userDB)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to upsert user"})
 		return
 	}
-	exchangeToken, err := a.jwt.EncodeExchangeToken(user.UserID)
+	exchangeToken, err := a.jwt.EncodeExchangeToken(userDB.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate token"})
 		return
@@ -96,13 +97,7 @@ func (a *AuthHandler) Exchange(c *gin.Context) {
 		return
 	}
 
-	userID, err := strconv.Atoi(claims.UserID)
-	if err != nil {
-		c.JSON(http.StatusForbidden, gin.H{"error": "cant convert string to int: " + err.Error()})
-		return
-	}
-
-	user, err := a.userService.GetUserByID(uint(userID))
+	user, err := a.userService.GetUserByID(claims.UserID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "error getting user: " + err.Error()})
 		return
@@ -113,10 +108,10 @@ func (a *AuthHandler) Exchange(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to sign access token: " + err.Error()})
 		return
 	}
+	refreshToken, err := a.jwt.EncodeRefreshToken(*user)
 
-	// Set access token in HTTP-only cookie (optional)
-	// TODO: Add refresh token handling
-	c.SetCookie("access_token", accessToken, 3600, "/", "", a.cfg.IsProd, true)
+	c.SetCookie("access_token", accessToken, int(time.Hour.Seconds()), "/", "", a.cfg.IsProd, true)
+	c.SetCookie("refresh_token", refreshToken, int(time.Hour.Seconds()*7*24), "/", "", a.cfg.IsProd, true)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message":      "exchange successful",
