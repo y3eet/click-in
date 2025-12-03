@@ -12,6 +12,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuthContext } from "@/services/auth/provider";
+import { UserPayload } from "@/services/users/types";
 
 const navLinks = [
   { href: "/user", label: "Home" },
@@ -23,7 +25,7 @@ const navLinks = [
 
 export function Topbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
+  const { currentUser } = useAuthContext();
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -64,52 +66,22 @@ export function Topbar() {
         <div className="flex items-center gap-2">
           {/* User Profile Dropdown */}
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="relative flex items-center gap-2 rounded-full p-1 pr-2 hover:bg-accent"
-              >
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src="/professional-headshot.png" alt="User" />
-                  <AvatarFallback className="bg-muted text-muted-foreground">
-                    JD
-                  </AvatarFallback>
-                </Avatar>
-                <ChevronDown className="hidden h-4 w-4 text-muted-foreground sm:block" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <div className="flex items-center gap-3 p-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src="/professional-headshot.png" alt="User" />
-                  <AvatarFallback className="bg-muted text-muted-foreground">
-                    JD
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium text-foreground">
-                    John Doe
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    john@example.com
-                  </span>
-                </div>
-              </div>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer">
-                <User className="mr-2 h-4 w-4" />
-                Profile
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive">
-                <LogOut className="mr-2 h-4 w-4" />
-                Log out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
+            {currentUser ? (
+              <UserProfileDropdown currentUser={currentUser} />
+            ) : (
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem className="cursor-pointer">
+                  <Link href="/login" className="w-full">
+                    Log in
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer">
+                  <Link href="/signup" className="w-full">
+                    Sign up
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            )}
           </DropdownMenu>
 
           {/* Mobile Menu Button */}
@@ -149,5 +121,61 @@ export function Topbar() {
         </nav>
       </div>
     </header>
+  );
+}
+
+function UserProfileDropdown({ currentUser }: { currentUser: UserPayload }) {
+  const initials =
+    currentUser.username[0].toUpperCase() +
+    currentUser.username[1].toUpperCase();
+  return (
+    <div>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          className="relative flex items-center gap-2 rounded-full p-1 pr-2 hover:bg-accent"
+        >
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={currentUser.avatar_url} alt="User" />
+            <AvatarFallback className="bg-muted text-muted-foreground">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+          <ChevronDown className="hidden h-4 w-4 text-muted-foreground sm:block" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        <div className="flex items-center gap-3 p-3">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={currentUser.avatar_url} alt="User" />
+            <AvatarFallback className="bg-muted text-muted-foreground">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col">
+            <span className="text-sm font-medium text-foreground">
+              {currentUser.username}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {currentUser.email}
+            </span>
+          </div>
+        </div>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem className="cursor-pointer">
+          <User className="mr-2 h-4 w-4" />
+          Profile
+        </DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer">
+          <Settings className="mr-2 h-4 w-4" />
+          Settings
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive">
+          <LogOut className="mr-2 h-4 w-4" />
+          Log out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </div>
   );
 }
