@@ -11,7 +11,7 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
   function handleLogin(e: React.MouseEvent) {
     const provider = e.currentTarget.id;
-    window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/${provider}`;
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/${provider}`;
   }
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
