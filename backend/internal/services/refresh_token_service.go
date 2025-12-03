@@ -14,6 +14,12 @@ func NewRefreshTokenService(repo *repositories.RefreshTokenRepository) *RefreshT
 }
 
 func (r RefreshTokenService) CreateRefreshToken(refreshToken *models.RefreshToken) error {
+	token, err := r.repo.FindByUA(refreshToken.UserAgent)
+	if err == nil && token != nil {
+		token.Token = refreshToken.Token
+		token.ExpiresAt = refreshToken.ExpiresAt
+		return r.repo.Update(token)
+	}
 	return r.repo.Create(refreshToken)
 }
 

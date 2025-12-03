@@ -17,10 +17,20 @@ func (r RefreshTokenRepository) Create(refreshToken *models.RefreshToken) error 
 	return r.db.Create(refreshToken).Error
 }
 
+func (r RefreshTokenRepository) FindByUA(userAgent string) (*models.RefreshToken, error) {
+	var token models.RefreshToken
+	err := r.db.Where(&models.RefreshToken{UserAgent: userAgent}).First(&token).Error
+	return &token, err
+}
+
 func (r RefreshTokenRepository) FindByToken(refreshToken string) (*models.RefreshToken, error) {
 	var token models.RefreshToken
 	err := r.db.Where(&models.RefreshToken{Token: refreshToken}).First(&token).Error
 	return &token, err
+}
+
+func (r RefreshTokenRepository) Update(refreshToken *models.RefreshToken) error {
+	return r.db.Save(refreshToken).Error
 }
 
 func (r RefreshTokenRepository) DeleteByToken(refreshToken string) error {

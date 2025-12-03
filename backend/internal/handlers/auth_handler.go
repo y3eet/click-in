@@ -8,6 +8,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/markbates/goth/gothic"
+	"github.com/mssola/user_agent"
+
 	"github.com/y3eet/click-in/internal/auth"
 	"github.com/y3eet/click-in/internal/config"
 	"github.com/y3eet/click-in/internal/models"
@@ -85,6 +87,7 @@ func (a *AuthHandler) Callback(c *gin.Context) {
 }
 
 func (a *AuthHandler) Exchange(c *gin.Context) {
+	userAgents := c.Request.UserAgent()
 	var exchangeReqBody ExchangeRequestBody
 	if err := c.ShouldBindJSON(&exchangeReqBody); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid JSON: " + err.Error()})
@@ -108,7 +111,26 @@ func (a *AuthHandler) Exchange(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to sign access token: " + err.Error()})
 		return
 	}
+	ua := user_agent.New(userAgents)
+
+	browserName, browserVersion := ua.Browser()
+	platform := ua.Platform()
+	os := ua.OS()
+	is_mobile := ua.Mobile()
+	ip := c.ClientIP()
 	refreshToken, err := a.jwt.EncodeRefreshToken(*user)
+	a.refreshTokenService.CreateRefreshToken(&models.RefreshToken{
+		Token:          refreshToken,
+		UserID:         user.ID,
+		Browser:        browserName,
+		BrowserVersion: browserVersion,
+		Platform:       platform,
+		OS:             os,
+		IsMobile:       is_mobile,
+		UserAgent:      userAgents,
+		IPAddress:      ip,
+		ExpiresAt:      time.Now().Add(7 * 24 * time.Hour),
+	})
 
 	c.SetCookie("access_token", accessToken, int(time.Hour.Seconds()), "/", "", a.cfg.IsProd, true)
 	c.SetCookie("refresh_token", refreshToken, int(time.Hour.Seconds()*7*24), "/", "", a.cfg.IsProd, true)
