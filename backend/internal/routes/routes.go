@@ -36,6 +36,7 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
 		auth.POST("/:provider/callback", authHandler.Callback)
 		auth.POST("/exchange", authHandler.Exchange)
 		auth.POST("/refresh", authHandler.RefreshToken)
+		auth.GET("/current-user", authHandler.CurrentUser)
 		auth.POST("/logout", authHandler.Logout)
 	}
 }

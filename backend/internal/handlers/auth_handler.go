@@ -143,13 +143,25 @@ func (a *AuthHandler) Exchange(c *gin.Context) {
 	})
 }
 
+func (a *AuthHandler) CurrentUser(c *gin.Context) {
+	accessToken, err := c.Cookie("access_token")
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
+	}
+	payload, err := a.jwt.DecodeAccessToken(accessToken)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "Error decoding access token: " + err.Error()})
+	}
+	c.JSON(http.StatusOK, gin.H{"user": payload})
+}
+
 func (a *AuthHandler) Logout(c *gin.Context) {
 	gothic.Logout(c.Writer, c.Request)
 	c.JSON(http.StatusOK, gin.H{"message": "logged out"})
 }
 
 func (a *AuthHandler) RefreshToken(c *gin.Context) {
-	
+
 	refreshToken, err := c.Cookie("refresh_token")
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthenticated, no refresh token found"})
