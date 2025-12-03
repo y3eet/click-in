@@ -148,6 +148,56 @@ func (a *AuthHandler) Logout(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "logged out"})
 }
 
+func (a *AuthHandler) RefreshToken(c *gin.Context) {
+	
+	refreshToken, err := c.Cookie("refresh_token")
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthenticated, no refresh token found"})
+		return
+	}
+
+	oldToken, err := a.refreshTokenService.GetRefreshTokenByToken(refreshToken)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "Unauthenticated, no refresh token found in db"})
+		return
+	}
+
+	if oldToken.ExpiresAt.Before(time.Now()) {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "Refresh token expired"})
+		_ = a.refreshTokenService.DeleteRefreshTokenByToken(oldToken.Token)
+		return
+	}
+
+	decodedToken, err := a.jwt.DecodeRefreshToken(oldToken.Token)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "Refresh token expired"})
+		return
+	}
+
+	user, err := a.userService.GetUserByID(decodedToken.User.ID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+		return
+	}
+
+	newAccessToken, err := a.jwt.EncodeAccessToken(*user)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "Error encoding access token"})
+		return
+	}
+	newRefreshToken, err := a.jwt.EncodeRefreshToken(*user)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "Error encoding refresh token"})
+		return
+	}
+
+	a.refreshTokenService.RefreshToken(oldToken, newRefreshToken)
+
+	c.SetCookie("access_token", newAccessToken, int(constants.AccessTokenTTL.Seconds()), "/", "", a.cfg.IsProd, true)
+	c.SetCookie("refresh_token", newRefreshToken, int(constants.RefreshTokenTTL.Seconds()), "/", "", a.cfg.IsProd, true)
+	c.JSON(http.StatusOK, gin.H{"message": "Successfully refreshed token", "user": user})
+}
+
 func setProviderContext(c *gin.Context, provider string) {
 	ctx := context.WithValue(c.Request.Context(), gothic.ProviderParamKey, provider)
 	query := c.Request.URL.Query()

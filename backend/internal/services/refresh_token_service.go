@@ -1,6 +1,9 @@
 package services
 
 import (
+	"time"
+
+	"github.com/y3eet/click-in/internal/constants"
 	"github.com/y3eet/click-in/internal/models"
 	"github.com/y3eet/click-in/internal/repositories"
 )
@@ -11,6 +14,12 @@ type RefreshTokenService struct {
 
 func NewRefreshTokenService(repo *repositories.RefreshTokenRepository) *RefreshTokenService {
 	return &RefreshTokenService{repo: repo}
+}
+
+func (r RefreshTokenService) RefreshToken(oldToken *models.RefreshToken, newToken string) error {
+	oldToken.Token = newToken
+	oldToken.ExpiresAt = time.Now().Add(constants.RefreshTokenTTL)
+	return r.repo.Update(oldToken)
 }
 
 func (r RefreshTokenService) CreateRefreshToken(refreshToken *models.RefreshToken) error {
