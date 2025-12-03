@@ -152,7 +152,7 @@ func (a *AuthHandler) CurrentUser(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "Error decoding access token: " + err.Error()})
 	}
-	c.JSON(http.StatusOK, gin.H{"user": payload})
+	c.JSON(http.StatusOK, payload)
 }
 
 func (a *AuthHandler) Logout(c *gin.Context) {
