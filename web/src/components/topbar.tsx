@@ -69,18 +69,13 @@ export function Topbar() {
             {currentUser ? (
               <UserProfileDropdown currentUser={currentUser} />
             ) : (
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem className="cursor-pointer">
-                  <Link href="/login" className="w-full">
+              <div className="flex gap-2">
+                <Link href="/auth/login" className="w-full">
+                  <Button size="sm" variant="outline" className="w-full">
                     Log in
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer">
-                  <Link href="/signup" className="w-full">
-                    Sign up
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
+                  </Button>
+                </Link>
+              </div>
             )}
           </DropdownMenu>
 
@@ -125,6 +120,7 @@ export function Topbar() {
 }
 
 function UserProfileDropdown({ currentUser }: { currentUser: UserPayload }) {
+  const { handleLogout } = useAuthContext();
   const initials =
     currentUser.username[0].toUpperCase() +
     currentUser.username[1].toUpperCase();
@@ -171,7 +167,10 @@ function UserProfileDropdown({ currentUser }: { currentUser: UserPayload }) {
           Settings
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive">
+        <DropdownMenuItem
+          onClick={() => handleLogout()}
+          className="cursor-pointer text-destructive focus:text-destructive"
+        >
           <LogOut className="mr-2 h-4 w-4" />
           Log out
         </DropdownMenuItem>

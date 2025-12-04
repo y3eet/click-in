@@ -1,11 +1,14 @@
 import { createContext, useContext, useEffect } from "react";
 import { AuthContextType } from "./types";
-import { useCurrentUser } from "./hooks";
+import { useCurrentUser, useLogout } from "./hooks";
+import { useRouter } from "next/navigation";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const router = useRouter();
   const { data, isLoading, refetch } = useCurrentUser();
+  const { mutate: logout } = useLogout();
 
   useEffect(() => {
     const user = data?.data;
@@ -20,10 +23,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     refetch();
   }
 
+  function handleLogout() {
+    logout(undefined, {
+      onSuccess: () => {
+        localStorage.removeItem("exp");
+        router.push("/auth/login");
+        refetch();
+      },
+    });
+  }
+
   const value = {
     currentUser: data?.data,
     isLoading,
     getCurrentUser,
+    handleLogout,
   };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

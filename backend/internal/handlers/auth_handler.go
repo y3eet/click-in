@@ -66,7 +66,7 @@ func (a *AuthHandler) Callback(c *gin.Context) {
 		return
 	}
 	//Upsert user to DB here
-	var userDB = models.User{
+	userDB := models.User{
 		Email:      user.Email,
 		Username:   user.Name,
 		AvatarURL:  user.AvatarURL,
@@ -120,7 +120,13 @@ func (a *AuthHandler) Exchange(c *gin.Context) {
 	is_mobile := ua.Mobile()
 	ip := c.ClientIP()
 	refreshToken, err := a.jwt.EncodeRefreshToken(*user)
-	a.refreshTokenService.CreateRefreshToken(&models.RefreshToken{
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to sign refresh token: " + err.Error()})
+		return
+	}
+
+	// Create refresh token in DB (will auto-delete existing token for same user agent)
+	err = a.refreshTokenService.CreateRefreshToken(&models.RefreshToken{
 		Token:          refreshToken,
 		UserID:         user.ID,
 		Browser:        browserName,
@@ -132,6 +138,10 @@ func (a *AuthHandler) Exchange(c *gin.Context) {
 		IPAddress:      ip,
 		ExpiresAt:      time.Now().Add(7 * 24 * time.Hour),
 	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create refresh token: " + err.Error()})
+		return
+	}
 
 	c.SetCookie("access_token", accessToken, int(constants.AccessTokenTTL.Seconds()), "/", "", a.cfg.IsProd, true)
 	c.SetCookie("refresh_token", refreshToken, int(constants.RefreshTokenTTL.Seconds()), "/", "", a.cfg.IsProd, true)
@@ -147,16 +157,30 @@ func (a *AuthHandler) CurrentUser(c *gin.Context) {
 	accessToken, err := c.Cookie("access_token")
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
+		return
 	}
 	payload, err := a.jwt.DecodeAccessToken(accessToken)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "Error decoding access token: " + err.Error()})
+		return
 	}
 	c.JSON(http.StatusOK, payload)
 }
 
 func (a *AuthHandler) Logout(c *gin.Context) {
-	gothic.Logout(c.Writer, c.Request)
+	refreshToken, err := c.Cookie("refresh_token")
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
+		return
+	}
+	err = a.refreshTokenService.DeleteRefreshTokenByToken(refreshToken)
+
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
+		return
+	}
+	c.SetCookie("access_token", "", -1, "/", "", a.cfg.IsProd, true)
+	c.SetCookie("refresh_token", "", -1, "/", "", a.cfg.IsProd, true)
 	c.JSON(http.StatusOK, gin.H{"message": "logged out"})
 }
 
@@ -203,7 +227,11 @@ func (a *AuthHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	a.refreshTokenService.RefreshToken(oldToken, newRefreshToken)
+	err = a.refreshTokenService.RefreshToken(oldToken, newRefreshToken)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update refresh token: " + err.Error()})
+		return
+	}
 
 	c.SetCookie("access_token", newAccessToken, int(constants.AccessTokenTTL.Seconds()), "/", "", a.cfg.IsProd, true)
 	c.SetCookie("refresh_token", newRefreshToken, int(constants.RefreshTokenTTL.Seconds()), "/", "", a.cfg.IsProd, true)

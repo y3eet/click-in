@@ -10,4 +10,5 @@ export type AuthContextType = {
   currentUser?: UserPayload | null;
   isLoading: boolean;
   getCurrentUser: () => void;
+  handleLogout: () => void;
 };

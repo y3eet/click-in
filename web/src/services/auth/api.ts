@@ -16,3 +16,8 @@ export function refreshToken() {
 export function currentUser() {
   return api.get<Prettify<UserPayload>>("/auth/current-user");
 }
+
+export function logout() {
+  localStorage.removeItem("exp");
+  return api.post("/auth/logout");
+}
