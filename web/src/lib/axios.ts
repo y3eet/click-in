@@ -42,13 +42,14 @@ api.interceptors.response.use(
     };
     // Check token expiration
     const exp = localStorage.getItem("exp");
-    if (!exp) {
-      window.location.href = "/auth/login";
-    }
+    if (!exp) return Promise.reject(error);
     const expDate = new Date(Number(exp) * 1000);
     const now = new Date();
 
-    if (expDate <= now && !originalRequest._retry) {
+    if (
+      (expDate <= now || error.response?.status === 401) &&
+      !originalRequest._retry
+    ) {
       if (isRefreshing) {
         // If already refreshing, queue this request
         return new Promise((resolve, reject) => {
