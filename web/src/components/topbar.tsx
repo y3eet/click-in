@@ -14,11 +14,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuthContext } from "@/services/auth/provider";
 import { UserPayload } from "@/services/users/types";
+import { ModeToggle } from "./mode-toggle";
 
 const navLinks = [
-  { href: "/home", label: "Home" },
-  { href: "/browse", label: "Browse" },
-  { href: "/my-entities", label: "My Entities" },
+  { href: "/home/browse", label: "Browse" },
   { href: "/leaderboard", label: "Leaderboard" },
   { href: "/contact", label: "Contact" },
 ];
@@ -65,6 +64,7 @@ export function Topbar() {
         {/* User Profile & Mobile Menu Button */}
         <div className="flex items-center gap-2">
           {/* User Profile Dropdown */}
+          <ModeToggle />
           <DropdownMenu>
             {currentUser ? (
               <UserProfileDropdown currentUser={currentUser} />
