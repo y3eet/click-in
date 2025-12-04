@@ -17,9 +17,15 @@ func (r RefreshTokenRepository) Create(refreshToken *models.RefreshToken) error 
 	return r.db.Create(refreshToken).Error
 }
 
-func (r RefreshTokenRepository) FindByUA(userAgent string) (*models.RefreshToken, error) {
+func (r RefreshTokenRepository) FindByUA(userAgent string, userId uint) (*models.RefreshToken, error) {
 	var token models.RefreshToken
-	err := r.db.Where(&models.RefreshToken{UserAgent: userAgent}).First(&token).Error
+	err := r.db.Where(&models.RefreshToken{UserAgent: userAgent, UserID: userId}).First(&token).Error
+	return &token, err
+}
+
+func (r RefreshTokenRepository) GetFirst(refreshTokenModel *models.RefreshToken) (*models.RefreshToken, error) {
+	var token models.RefreshToken
+	err := r.db.Where(refreshTokenModel).First(&token).Error
 	return &token, err
 }
 

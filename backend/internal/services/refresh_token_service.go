@@ -23,11 +23,11 @@ func (r RefreshTokenService) RefreshToken(oldToken *models.RefreshToken, newToke
 }
 
 func (r RefreshTokenService) CreateRefreshToken(refreshToken *models.RefreshToken) error {
-	token, err := r.repo.FindByUA(refreshToken.UserAgent)
-	if err == nil && token != nil {
-		token.Token = refreshToken.Token
-		token.ExpiresAt = refreshToken.ExpiresAt
-		return r.repo.Update(token)
+	existingToken, err := r.repo.FindByUA(refreshToken.UserAgent, refreshToken.UserID)
+	if err == nil && existingToken != nil {
+		if err := r.repo.DeleteByToken(existingToken.Token); err != nil {
+			return err
+		}
 	}
 	return r.repo.Create(refreshToken)
 }
