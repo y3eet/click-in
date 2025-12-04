@@ -16,7 +16,7 @@ import { useAuthContext } from "@/services/auth/provider";
 import { UserPayload } from "@/services/users/types";
 
 const navLinks = [
-  { href: "/user", label: "Home" },
+  { href: "/home", label: "Home" },
   { href: "/browse", label: "Browse" },
   { href: "/my-entities", label: "My Entities" },
   { href: "/leaderboard", label: "Leaderboard" },
@@ -30,7 +30,7 @@ export function Topbar() {
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
-        <Link href="/user" className="flex items-center gap-2">
+        <Link href="/home" className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
             <svg
               className="h-5 w-5 text-primary-foreground"

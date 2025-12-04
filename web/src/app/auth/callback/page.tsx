@@ -24,13 +24,13 @@ export default function Page() {
 
   async function handleExchangeToken() {
     if (!exchangeToken) {
-      router.push("/user");
+      router.push("/home");
       return;
     }
     const { error } = await tryCatch(mutateAsync(exchangeToken));
     if (!error) {
       getCurrentUser();
-      router.push("/user");
+      router.push("/home");
     }
   }
 
