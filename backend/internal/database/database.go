@@ -19,6 +19,9 @@ func Connect(dsn string) (*gorm.DB, error) {
 	if err := db.AutoMigrate(&models.RefreshToken{}); err != nil {
 		return nil, err
 	}
+	if err := db.AutoMigrate(&models.Entity{}); err != nil {
+		return nil, err
+	}
 
 	return db, nil
 }
