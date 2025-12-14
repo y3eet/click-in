@@ -27,6 +27,10 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
 			users.GET("/:id", userHandler.GetUser)
 			users.GET("", userHandler.GetAllUsers)
 		}
+		file := api.Group("/file")
+		{
+			file.POST("/upload", handlers.FileUpload)
+		}
 
 	}
 	auth := r.Group("/auth")
