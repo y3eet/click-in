@@ -30,6 +30,7 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
 		file := api.Group("/file")
 		{
 			file.POST("/upload", handlers.FileUpload)
+			file.GET("/:key", handlers.ViewFile)
 		}
 
 	}

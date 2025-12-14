@@ -11,6 +11,11 @@ import (
 	"github.com/y3eet/click-in/internal/storage"
 )
 
+const (
+	MaxFileSize = 10 << 20 // 10 MB
+	BucketName  = "bucket"
+)
+
 func FileUpload(c *gin.Context) {
 	file, err := c.FormFile("file")
 	if err != nil {
@@ -34,7 +39,7 @@ func FileUpload(c *gin.Context) {
 	key := filepath.Base(file.Filename)
 
 	_, err = client.PutObject(context.TODO(), &s3.PutObjectInput{
-		Bucket:      aws.String("bucket"),
+		Bucket:      aws.String(BucketName),
 		Key:         aws.String(key),
 		Body:        src,
 		ContentType: aws.String(file.Header.Get("Content-Type")),
@@ -48,4 +53,25 @@ func FileUpload(c *gin.Context) {
 		"message": "upload successful",
 		"file":    key,
 	})
+}
+
+func ViewFile(c *gin.Context) {
+	client, err := storage.NewMinioClient()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	key := c.Param("key")
+
+	resp, err := client.GetObject(context.TODO(), &s3.GetObjectInput{
+		Bucket: aws.String(BucketName),
+		Key:    aws.String(key),
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	defer resp.Body.Close()
+
+	c.DataFromReader(http.StatusOK, *resp.ContentLength, *resp.ContentType, resp.Body, nil)
 }
