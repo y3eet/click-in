@@ -20,17 +20,27 @@ type Config struct {
 	BaseUrl            string
 	FrontendURL        string
 
+	MinioEndpoint     string
+	MinioRootUser     string
+	MinioRootPassword string
+
 	JwtAccessSecret   string
 	JwtExchangeSecret string
 	JwtRefreshSecret  string
 }
+
+var Cfg *Config
 
 func Load() *Config {
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found")
 	}
 
-	return &Config{
+	if Cfg != nil {
+		return Cfg
+	}
+
+	Cfg = &Config{
 		Port:               getEnv("PORT", "9000"),
 		DatabaseURL:        getEnv("DATABASE_URL", ""),
 		WebURL:             getEnv("WEB_URL", "http://localhost:3000"),
@@ -41,11 +51,16 @@ func Load() *Config {
 		IsProd:             getEnvBool("IS_PROD", false),
 		BaseUrl:            getEnv("BASE_URL", "http://localhost:"+getEnv("PORT", "9000")),
 		FrontendURL:        getEnv("FRONTEND_URL", "http://localhost:3000"),
+		
+		MinioEndpoint:      getEnv("MINIO_ENDPOINT", "http://localhost:9000"),
+		MinioRootUser:      getEnv("MINIO_ROOT_USER", "minioadmin"),
+		MinioRootPassword:  getEnv("MINIO_ROOT_PASSWORD", "minioadmin"),
 
 		JwtAccessSecret:   getEnv("JWT_ACCESS_SECRET", ""),
 		JwtExchangeSecret: getEnv("JWT_EXCHANGE_SECRET", ""),
 		JwtRefreshSecret:  getEnv("JWT_REFRESH_SECRET", ""),
 	}
+	return Cfg
 
 }
 
