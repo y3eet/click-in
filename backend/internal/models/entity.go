@@ -8,7 +8,10 @@ type Entity struct {
 	ID       uint   `gorm:"primarykey" json:"id"`
 	Name     string `gorm:"not null" json:"name"`
 	ImageURL string `json:"image_url"`
-	Mp3URL   string `json:"mp3_url"`
+	ImageKey string `json:"image_key"`
+
+	Mp3URL string `json:"mp3_url"`
+	Mp3Key string `json:"mp3_key"`
 
 	UserID uint  `gorm:"not null" json:"user_id"`
 	User   *User `gorm:"foreignKey:UserID" json:"user"`

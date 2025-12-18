@@ -16,6 +16,10 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
 	userService := services.NewUserService(userRepo)
 	userHandler := handlers.NewUserHandler(userService)
 
+	entityRepo := repositories.NewEntityRepository(db)
+	entityService := services.NewEntityService(entityRepo)
+	entityHandler := handlers.NewEntityHandler(entityService)
+
 	refreshTokenRepo := repositories.NewRefreshTokenRepository(db)
 	refreshTokenService := services.NewRefreshTokenService(refreshTokenRepo)
 
@@ -29,6 +33,14 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
 			users.GET("/:id", userHandler.GetUser)
 			users.GET("", userHandler.GetAllUsers)
 		}
+
+		entity := api.Group("/entity")
+		entity.Use(middleware.AuthMiddleware)
+		{
+			entity.POST("", entityHandler.CreateEntity)
+			entity.GET("", entityHandler.GetAllEntity)
+		}
+
 		file := api.Group("/file")
 		{
 			file.POST("/upload", handlers.FileUpload)
