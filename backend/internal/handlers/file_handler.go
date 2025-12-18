@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"path/filepath"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -12,7 +13,7 @@ import (
 )
 
 const (
-	MaxFileSize = 10 << 20 // 10 MB
+	MaxFileSize = 10 * 1024 * 1024 // 10 MB
 	BucketName  = "bucket"
 )
 
@@ -28,6 +29,10 @@ func FileUpload(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	if file.Size > MaxFileSize {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "file size exceeds limit"})
+		return
+	}
 	defer src.Close()
 
 	client, err := storage.NewMinioClient()
@@ -36,7 +41,7 @@ func FileUpload(c *gin.Context) {
 		return
 	}
 
-	key := filepath.Base(file.Filename)
+	key := filepath.Base(file.Filename + "-" + time.Now().Format("20060102150405"))
 
 	_, err = client.PutObject(context.TODO(), &s3.PutObjectInput{
 		Bucket:      aws.String(BucketName),
