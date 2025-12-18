@@ -31,6 +31,7 @@ export function useFileUpload() {
       setUploading(false);
       setProgress(0);
       setError(parseErrorMessage(error));
+      setFileUrl(null);
       return "";
     }
 
@@ -40,7 +41,7 @@ export function useFileUpload() {
     }`;
 
     setFileUrl(fileUrl);
-    return fileUrl;
+    return data?.data.file;
   };
 
   return {
