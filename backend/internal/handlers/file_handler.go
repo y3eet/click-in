@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"path/filepath"
 	"time"
@@ -30,7 +31,8 @@ func FileUpload(c *gin.Context) {
 		return
 	}
 	if file.Size > MaxFileSize {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "file size exceeds limit"})
+		msg := fmt.Sprintf("Max file size is %d MB", MaxFileSize/(1024*1024))
+		c.JSON(http.StatusBadRequest, gin.H{"error": msg})
 		return
 	}
 	defer src.Close()
