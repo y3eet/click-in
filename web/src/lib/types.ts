@@ -6,8 +6,15 @@ type Success<T> = {
   data: T;
   error: null;
 };
-
-type Failure<E> = {
+export type ResponseError = {
+  response: {
+    data: {
+      error: string;
+    };
+    status: number;
+  };
+};
+export type Failure<E = ResponseError> = {
   data: null;
   error: E;
 };
