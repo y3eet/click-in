@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/y3eet/click-in/internal/config"
 	"github.com/y3eet/click-in/internal/handlers"
+	"github.com/y3eet/click-in/internal/middleware"
 	"github.com/y3eet/click-in/internal/repositories"
 	"github.com/y3eet/click-in/internal/services"
 	"gorm.io/gorm"
@@ -23,6 +24,7 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
 	api := r.Group("/api")
 	{
 		users := api.Group("/users")
+		users.Use(middleware.AuthMiddleware)
 		{
 			users.GET("/:id", userHandler.GetUser)
 			users.GET("", userHandler.GetAllUsers)

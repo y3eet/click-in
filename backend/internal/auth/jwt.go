@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/y3eet/click-in/internal/config"
-	"github.com/y3eet/click-in/internal/models"
 	"github.com/y3eet/click-in/internal/constants"
+	"github.com/y3eet/click-in/internal/models"
 )
 
 // JWTManager encapsulates token operations bound to a config.
@@ -163,4 +164,22 @@ func defaultRegisteredClaims(ttl time.Duration) jwt.RegisteredClaims {
 		NotBefore: jwt.NewNumericDate(now),
 		Issuer:    "click-in",
 	}
+}
+
+const ClaimsKey = "claims"
+
+func GetClaims(c *gin.Context) (Claims, bool) {
+	v, ok := c.Get(ClaimsKey)
+	if !ok {
+		return Claims{}, false
+	}
+
+	if claims, ok := v.(Claims); ok {
+		return claims, true
+	}
+	if claimsPtr, ok := v.(*Claims); ok && claimsPtr != nil {
+		return *claimsPtr, true
+	}
+
+	return Claims{}, false
 }
