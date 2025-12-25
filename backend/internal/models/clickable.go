@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type Entity struct {
+type Clickable struct {
 	ID       uint   `gorm:"primarykey" json:"id"`
 	Name     string `gorm:"not null" json:"name"`
 	ImageURL string `json:"image_url"`

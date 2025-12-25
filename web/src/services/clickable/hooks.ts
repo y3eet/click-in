@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { createEntity, getAllEntities } from "./api";
+import { createClickable, getAllEntities } from "./api";
 
 export function useFetchEntities() {
   return useQuery({
@@ -8,8 +8,8 @@ export function useFetchEntities() {
   });
 }
 
-export function useCreateEntity() {
+export function useCreateClickable() {
   return useMutation({
-    mutationFn: createEntity,
+    mutationFn: createClickable,
   });
 }

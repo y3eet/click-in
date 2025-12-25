@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Spinner } from "@/components/ui/spinner";
 import { useFileUpload } from "@/hooks/use-file-upload";
 import { tryCatch } from "@/lib/utils";
-import { useCreateEntity } from "@/services/entity/hooks";
+import { useCreateClickable } from "@/services/clickable/hooks";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -16,7 +16,7 @@ export default function Page() {
   const [imageKey, setImageKey] = useState("");
   const [audioKey, setAudioKey] = useState("");
 
-  const { isPending, mutateAsync } = useCreateEntity();
+  const { isPending, mutateAsync } = useCreateClickable();
 
   async function handleCreate() {
     const { error } = await tryCatch(
@@ -36,13 +36,13 @@ export default function Page() {
       )
     );
     if (error) {
-      console.error("Error creating entity:", error);
+      console.error("Error creating clickable:", error);
     }
   }
 
   return (
     <div className="pt-10">
-      <h1 className="text-3xl font-bold">Create Entity</h1>
+      <h1 className="text-3xl font-bold">Create Clickable</h1>
       <div className="mt-4 grid w-full max-w-sm items-center gap-2">
         <Label htmlFor="name">Name</Label>
         <Input
@@ -50,7 +50,7 @@ export default function Page() {
           onChange={(e) => setName(e.target.value)}
           type="text"
           id="name"
-          placeholder="Enter entity name"
+          placeholder="Enter clickable name"
           className="mt-1 w-full max-w-sm"
         />
       </div>

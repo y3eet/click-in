@@ -1,6 +1,6 @@
 import { User } from "../users/types";
 
-export type Entity = {
+export type Clickable = {
   id: string;
   name: string;
   image_key: string;
@@ -11,4 +11,4 @@ export type Entity = {
   user: User;
 };
 
-export type CreateEntity = Pick<Entity, "name" | "image_key" | "mp3_key">;
+export type CreateClickable = Pick<Clickable, "name" | "image_key" | "mp3_key">;
