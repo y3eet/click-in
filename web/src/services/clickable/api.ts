@@ -8,3 +8,7 @@ export function getAllClickable() {
 export function createClickable(data: CreateClickable) {
   return api.post<Clickable>("/api/clickable", data);
 }
+
+export function getClickableById(id: string) {
+  return api.get<Clickable>(`/api/clickable/${id}`);
+}

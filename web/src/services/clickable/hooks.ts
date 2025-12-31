@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { createClickable, getAllClickable } from "./api";
+import { createClickable, getAllClickable, getClickableById } from "./api";
 
 export function useFetchClickable() {
   return useQuery({
@@ -11,5 +11,12 @@ export function useFetchClickable() {
 export function useCreateClickable() {
   return useMutation({
     mutationFn: createClickable,
+  });
+}
+
+export function useFetchClickableById(id: string) {
+  return useQuery({
+    queryKey: ["clickable", id],
+    queryFn: () => getClickableById(id),
   });
 }
