@@ -30,7 +30,7 @@ func (r ClickableRepository) FindByName(name string) (*models.Clickable, error) 
 }
 
 func (r ClickableRepository) GetAll() ([]models.Clickable, error) {
-	var entities []models.Clickable
-	err := r.db.Find(&entities).Error
-	return entities, err
+	var clickable []models.Clickable
+	err := r.db.Find(&clickable).Error
+	return clickable, err
 }
