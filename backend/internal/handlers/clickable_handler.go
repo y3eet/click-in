@@ -34,7 +34,16 @@ func (h ClickableHandler) CreateClickable(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	clickable := &models.Clickable{
+	clickable, err := h.service.GetClickableByName(req.Name)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Error finding clickable: " + err.Error()})
+		return
+	}
+	if clickable.ID != 0 {
+		c.JSON(http.StatusConflict, gin.H{"error": "Clickable already exists"})
+		return
+	}
+	clickable = &models.Clickable{
 		Name:     req.Name,
 		ImageKey: req.ImageKey,
 		Mp3Key:   req.Mp3Key,

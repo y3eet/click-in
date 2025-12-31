@@ -23,6 +23,12 @@ func (r ClickableRepository) FindByID(id uint) (*models.Clickable, error) {
 	return &clickable, err
 }
 
+func (r ClickableRepository) FindByName(name string) (*models.Clickable, error) {
+	var clickable models.Clickable
+	err := r.db.Where(&models.Clickable{Name: name}).First(&clickable).Error
+	return &clickable, err
+}
+
 func (r ClickableRepository) GetAll() ([]models.Clickable, error) {
 	var entities []models.Clickable
 	err := r.db.Find(&entities).Error
