@@ -1,10 +1,10 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { createClickable, getAllEntities } from "./api";
+import { createClickable, getAllClickable } from "./api";
 
-export function useFetchEntities() {
+export function useFetchClickable() {
   return useQuery({
-    queryKey: ["entities"],
-    queryFn: getAllEntities,
+    queryKey: ["clickable"],
+    queryFn: getAllClickable,
   });
 }
 

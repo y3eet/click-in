@@ -3,12 +3,15 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { buildImageUrl } from "@/lib/utils";
-import { useFetchEntities } from "@/services/clickable/hooks";
+import { useFetchClickable } from "@/services/clickable/hooks";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function BrowsePage() {
-  const { data } = useFetchEntities();
+  const { data } = useFetchClickable();
+  const router = useRouter();
+
   return (
     <div className="py-10">
       <h1 className="text-3xl font-bold">Browse Page</h1>
@@ -21,6 +24,7 @@ export default function BrowsePage() {
       <div className="mt-6 grid gap-4">
         {data?.data.map((clickable) => (
           <div
+            onClick={() => router.push(`clickable/${clickable.id}`)}
             key={clickable.id}
             className="p-4 border rounded-md hover:shadow-md transition"
           >
@@ -30,9 +34,8 @@ export default function BrowsePage() {
                 unoptimized
                 src={buildImageUrl(clickable.image_key)}
                 alt={clickable.name}
-                className="mt-2 w-32 h-32 object-cover"
-                width={128}
-                height={128}
+                width={350}
+                height={350}
               />
             )}
           </div>
