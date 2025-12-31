@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/y3eet/click-in/internal/auth"
@@ -57,10 +58,24 @@ func (h ClickableHandler) CreateClickable(c *gin.Context) {
 }
 
 func (h ClickableHandler) GetAllClickable(c *gin.Context) {
-	entities, err := h.service.GetAllClickable()
+	clickable, err := h.service.GetAllClickable()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve entities"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve clickable"})
 		return
 	}
-	c.JSON(http.StatusOK, entities)
+	c.JSON(http.StatusOK, clickable)
+}
+
+func (h ClickableHandler) GetClickableById(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Clickable ID: " + err.Error()})
+		return
+	}
+	clickable, err := h.service.GetClickableByID(uint(id))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Clickable not found: " + err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, clickable)
 }
