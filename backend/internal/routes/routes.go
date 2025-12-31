@@ -39,6 +39,7 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
 		{
 			clickable.POST("", clickableHandler.CreateClickable)
 			clickable.GET("", clickableHandler.GetAllClickable)
+			clickable.GET("/:id", clickableHandler.GetClickableById)
 		}
 
 		file := api.Group("/file")
