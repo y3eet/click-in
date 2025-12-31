@@ -6,10 +6,12 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Spinner } from "@/components/ui/spinner";
 import { useFileUpload } from "@/hooks/use-file-upload";
-import { tryCatch } from "@/lib/utils";
+import { parseError, tryCatch } from "@/lib/utils";
 import { useCreateClickable } from "@/services/clickable/hooks";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function Page() {
   const [name, setName] = useState("");
@@ -17,27 +19,29 @@ export default function Page() {
   const [audioKey, setAudioKey] = useState("");
 
   const { isPending, mutateAsync } = useCreateClickable();
+  const router = useRouter();
 
   async function handleCreate() {
-    const { error } = await tryCatch(
-      mutateAsync(
-        {
-          name,
-          image_key: imageKey,
-          mp3_key: audioKey,
+    mutateAsync(
+      {
+        name,
+        image_key: imageKey,
+        mp3_key: audioKey,
+      },
+      {
+        onSuccess: () => {
+          setName("");
+          setImageKey("");
+          setAudioKey("");
+          router.push("/home/browse");
         },
-        {
-          onSuccess: () => {
-            setName("");
-            setImageKey("");
-            setAudioKey("");
-          },
-        }
-      )
+        onError: (e) => {
+          toast.error(
+            `Failed to create clickable: ${parseError(e) || "Unknown error"}`
+          );
+        },
+      }
     );
-    if (error) {
-      console.error("Error creating clickable:", error);
-    }
   }
 
   return (
