@@ -19,18 +19,24 @@ func (r ClickableRepository) Create(clickable *models.Clickable) error {
 
 func (r ClickableRepository) FindByID(id uint) (*models.Clickable, error) {
 	var clickable models.Clickable
-	err := r.db.Where(&models.Clickable{ID: id}).First(&clickable).Error
+	err := r.db.Preload("User", func(db *gorm.DB) *gorm.DB {
+		return db.Select("ID", "Username", "AvatarURL")
+	}).Where(&models.Clickable{ID: id}).First(&clickable).Error
 	return &clickable, err
 }
 
 func (r ClickableRepository) FindByName(name string) (*models.Clickable, error) {
 	var clickable models.Clickable
-	err := r.db.Where(&models.Clickable{Name: name}).First(&clickable).Error
+	err := r.db.Preload("User", func(db *gorm.DB) *gorm.DB {
+		return db.Select("ID", "Username", "AvatarURL")
+	}).Where(&models.Clickable{Name: name}).First(&clickable).Error
 	return &clickable, err
 }
 
 func (r ClickableRepository) GetAll() ([]models.Clickable, error) {
 	var clickable []models.Clickable
-	err := r.db.Find(&clickable).Error
+	err := r.db.Preload("User", func(db *gorm.DB) *gorm.DB {
+		return db.Select("ID", "Username", "AvatarURL")
+	}).Find(&clickable).Error
 	return clickable, err
 }
