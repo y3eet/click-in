@@ -21,7 +21,7 @@ export default function BrowsePage() {
           <Button>Create Clickable</Button>
         </Link>
       </div>
-      <div className="mt-6 grid gap-4">
+      <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
         {data?.data.map((clickable) => (
           <div
             onClick={() => router.push(`clickable/${clickable.id}`)}
