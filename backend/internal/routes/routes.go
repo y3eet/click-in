@@ -59,4 +59,10 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
 		auth.GET("/current-user", authHandler.CurrentUser)
 		auth.POST("/logout", authHandler.Logout)
 	}
+	ws := r.Group("/ws")
+	ws.Use(middleware.AuthMiddleware)
+	{
+		ws.GET("", handlers.WebSocketHandler)
+	}
+
 }
