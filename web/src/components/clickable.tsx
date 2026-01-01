@@ -115,9 +115,9 @@ export function Clickable({
             inset 0 0 0 1px rgba(255,255,255,0.18);
         }
 
-        .clickable-btn:hover .clickable-img {
-          transform: scale(1.08);
-        }
+        // .clickable-btn:hover .clickable-img {
+        //   transform: scale(1.08);
+        // }
 
         .clickable-btn:active {
           transform: translateY(0px) scale(0.96);
@@ -134,8 +134,8 @@ export function Clickable({
             0 0 0 3px rgba(99,102,241,0.55),
             0 16px 40px rgba(0,0,0,0.26),
             inset 0 0 0 1px rgba(255,255,255,0.18);
-        }
 
+        }
         .clickable-btn:disabled {
           cursor: not-allowed;
           opacity: 0.55;
