@@ -22,7 +22,7 @@ export function parseErrorMessage(error: ResponseError): string {
   return error.response.data.error || "An unknown error occurred.";
 }
 
-export function buildImageUrl(key: string): string {
+export function buildFileUrl(key: string): string {
   return `${process.env.NEXT_PUBLIC_API_URL}/api/file/${key}`;
 }
 

@@ -3,7 +3,7 @@
 import { Clickable } from "@/components/clickable";
 import { useParams } from "next/navigation";
 import { useFetchClickableById } from "@/services/clickable/hooks";
-import { buildImageUrl } from "@/lib/utils";
+import { buildFileUrl } from "@/lib/utils";
 import Loader from "@/components/loader";
 
 export default function ClickablePage() {
@@ -13,12 +13,14 @@ export default function ClickablePage() {
   return (
     <div>
       <Loader loading={isLoading} error={error}>
-        {data && (
-          <Clickable
-            imageUrl={buildImageUrl(data.data.image_key!)}
-            alt={`Clickable ${params.id}`}
-          />
-        )}
+        <div>
+          {data && (
+            <Clickable
+              imageUrl={buildFileUrl(data.data.image_key!)}
+              alt={`Clickable ${params.id}`}
+            />
+          )}
+        </div>
       </Loader>
     </div>
   );

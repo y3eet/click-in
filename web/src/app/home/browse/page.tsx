@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { buildImageUrl } from "@/lib/utils";
+import { buildFileUrl } from "@/lib/utils";
 import { useFetchClickable } from "@/services/clickable/hooks";
 import Link from "next/link";
 import Image from "next/image";
@@ -32,7 +32,7 @@ export default function BrowsePage() {
             {clickable.image_key && (
               <Image
                 unoptimized
-                src={buildImageUrl(clickable.image_key)}
+                src={buildFileUrl(clickable.image_key)}
                 alt={clickable.name}
                 width={350}
                 height={350}
