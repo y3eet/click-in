@@ -22,6 +22,9 @@ func Connect(dsn string) (*gorm.DB, error) {
 	if err := db.AutoMigrate(&models.Clickable{}); err != nil {
 		return nil, err
 	}
+	if err := db.AutoMigrate(&models.Click{}); err != nil {
+		return nil, err
+	}
 
 	return db, nil
 }
