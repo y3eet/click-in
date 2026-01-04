@@ -25,7 +25,6 @@ export function useSSE<T>(
     };
 
     eventSource.onerror = (error: Event) => {
-      console.error("SSE error:", error);
       onError(error);
       eventSource.close();
     };
