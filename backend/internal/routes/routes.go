@@ -50,6 +50,11 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
 		click.Use(middleware.AuthMiddleware)
 		{
 			click.POST("", clickHandler.CreateClick)
+			clickEvent := click.Group("/event")
+			{
+				clickEvent.GET("/count/:clickable_id", clickHandler.StreamClickCountByClickableID)
+			}
+
 		}
 
 		file := api.Group("/file")
