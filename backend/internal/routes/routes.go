@@ -11,7 +11,7 @@ import (
 )
 
 func SetupRoutes(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
-	// Initialize layers
+
 	userRepo := repositories.NewUserRepository(db)
 	userService := services.NewUserService(userRepo)
 	userHandler := handlers.NewUserHandler(userService)
@@ -19,6 +19,10 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
 	clickableRepo := repositories.NewClickableRepository(db)
 	clickableService := services.NewClickableService(clickableRepo)
 	clickableHandler := handlers.NewClickableHandler(clickableService)
+
+	clickRepo := repositories.NewClickRepository(db)
+	clickService := services.NewClickService(clickRepo)
+	clickHandler := handlers.NewClickHandler(clickService)
 
 	refreshTokenRepo := repositories.NewRefreshTokenRepository(db)
 	refreshTokenService := services.NewRefreshTokenService(refreshTokenRepo)
@@ -40,6 +44,12 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
 			clickable.POST("", clickableHandler.CreateClickable)
 			clickable.GET("", clickableHandler.GetAllClickable)
 			clickable.GET("/:id", clickableHandler.GetClickableById)
+		}
+
+		click := api.Group("/click")
+		click.Use(middleware.AuthMiddleware)
+		{
+			click.POST("", clickHandler.CreateClick)
 		}
 
 		file := api.Group("/file")
