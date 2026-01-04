@@ -28,9 +28,13 @@ export default function ClickablePage() {
               <h1 className="text-3xl font-bold tracking-tight">
                 {data?.data.name}
               </h1>
-              <p className="text-muted-foreground">
-                {clickCount ?? "Loading..."} Clicks
-              </p>
+              {!streamError ? (
+                <p className="text-muted-foreground">
+                  {clickCount ?? "Loading..."} Clicks
+                </p>
+              ) : (
+                <span className="text-red-500">{streamError}</span>
+              )}
             </div>
 
             {data && (
