@@ -1,40 +1,43 @@
-# syntax=docker/dockerfile:1
+FROM oven/bun:1-alpine AS base
 
-# ---- deps stage ----
-FROM node:20-alpine AS deps
+FROM base AS deps
 WORKDIR /app
+COPY package.json bun.lock* ./
+RUN bun install --frozen-lockfile --production
 
-# If you use private registries, you may need to add .npmrc here.
-COPY package.json package-lock.json* ./
-RUN npm ci
-
-
-# ---- build stage ----
-FROM node:20-alpine AS builder
+FROM base AS builder
 WORKDIR /app
-
-COPY --from=deps /app/node_modules ./node_modules
-COPY . ./
-
+COPY package.json bun.lock* ./
+RUN bun install --frozen-lockfile
+COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
-
-RUN npm run build
-
-
-# ---- runtime stage (Next standalone) ----
-FROM node:20-alpine AS runner
-WORKDIR /app
-
 ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
-ENV PORT=3000
+RUN bun run build
 
-# Next "standalone" output includes the server and minimal node_modules.
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/public ./public
+FROM base AS runner
+WORKDIR /app
+
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001
+
+# Copy the standalone output
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+
+# Copy static files to the correct location within standalone
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Copy public files to the standalone directory
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+
+# Copy public and static files into the standalone directory structure
+RUN cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/
+
+USER nextjs
 
 EXPOSE 3000
+ENV PORT=3000
 
-# In standalone mode, server.js is at the root of the copied output.
-CMD ["node", "server.js"]
+CMD ["bun", "server.js"]
