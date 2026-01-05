@@ -12,9 +12,17 @@ import { tryCatch } from "@/lib/utils";
 import { useExchangeToken } from "@/services/auth/hooks";
 import { useAuthContext } from "@/services/auth/provider";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 
 export default function Page() {
+  return (
+    <Suspense>
+      <AuthLoader />
+    </Suspense>
+  );
+}
+
+function AuthLoader() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const exchangeToken = searchParams.get("exchange_token");
