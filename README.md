@@ -21,7 +21,6 @@ services:
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
       WEB_URL: ${WEB_URL:-http://localhost:3000}
       BASE_URL: ${BASE_URL:-http://localhost:8080}
-      JWT_SECRET: ${JWT_SECRET:-}
     ports:
       - "8080:8080"
     restart: unless-stopped
