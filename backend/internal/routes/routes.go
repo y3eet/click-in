@@ -29,6 +29,21 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
 
 	authHandler := handlers.NewAuthHandler(userService, refreshTokenService, cfg)
 
+	r.GET("/health", func(ctx *gin.Context) {
+		DBSQL, err := db.DB()
+		if err != nil || DBSQL.Ping() != nil {
+			ctx.JSON(
+				500,
+				gin.H{"status": "Database connection error"},
+			)
+			return
+		}
+		ctx.JSON(
+			200,
+			gin.H{"status": "OK"},
+		)
+	})
+
 	api := r.Group("/api")
 	{
 		users := api.Group("/users")
