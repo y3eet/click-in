@@ -1,14 +1,7 @@
-function getEnvVariable(key: string, defaultValue: string = ""): string {
-  const value = process.env[key] || defaultValue;
-  if (value.length === 0) {
-    console.warn(
-      `Environment variable ${key} is not set and no default value provided.`
-    );
-    throw new Error(`Missing environment variable: ${key}`);
-  }
-  return value;
+const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "";
+
+if (!apiUrl) {
+  console.warn("Environment variable NEXT_PUBLIC_API_URL is not set.");
 }
 
-export const config = {
-  apiUrl: getEnvVariable("NEXT_PUBLIC_API_URL"),
-};
+export const config = { apiUrl };
