@@ -1,4 +1,5 @@
 import { api } from "@/lib/axios";
+import { config } from "@/lib/config";
 import { parseErrorMessage, tryCatch } from "@/lib/utils";
 import { useState } from "react";
 
@@ -36,9 +37,7 @@ export function useFileUpload() {
     }
 
     setUploading(false);
-    const fileUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/file/${
-      data?.data.file || ""
-    }`;
+    const fileUrl = `${config.apiUrl}/api/file/${data?.data.file || ""}`;
 
     setFileUrl(fileUrl);
     return data?.data.file;

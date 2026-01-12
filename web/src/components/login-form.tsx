@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Field, FieldDescription, FieldGroup } from "@/components/ui/field";
+import { config } from "@/lib/config";
 
 export function LoginForm({
   className,
@@ -11,7 +12,7 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
   function handleLogin(e: React.MouseEvent) {
     const provider = e.currentTarget.id;
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/${provider}`;
+    window.location.href = `${config.apiUrl}/auth/${provider}`;
   }
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>

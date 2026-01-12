@@ -2,6 +2,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { ResponseError, Result } from "./types";
 import axios from "axios";
+import { config } from "./config";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -23,7 +24,7 @@ export function parseErrorMessage(error: ResponseError): string {
 }
 
 export function buildFileUrl(key: string): string {
-  return `${process.env.NEXT_PUBLIC_API_URL}/api/file/${key}`;
+  return `${config.apiUrl}/api/file/${key}`;
 }
 
 export function parseError(error: any) {

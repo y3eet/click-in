@@ -3,9 +3,10 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from "axios";
+import { config } from "./config";
 
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: config.apiUrl,
   withCredentials: true,
 });
 
@@ -76,9 +77,11 @@ api.interceptors.response.use(
         processQueue(refreshError as AxiosError, null);
         isRefreshing = false;
 
+        // const currentPath = window.location.pathname;
         // Redirect to login or handle refresh failure
-        window.location.href = "/auth/login";
-
+        // if (currentPath !== "/auth/login") {
+        //   window.location.href = "/auth/login";
+        // }
         return Promise.reject(refreshError);
       }
     }

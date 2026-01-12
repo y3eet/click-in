@@ -1,3 +1,4 @@
+import { config } from "@/lib/config";
 import { useEffect } from "react";
 
 type SSEResponse<T> = T & {
@@ -11,7 +12,7 @@ export function useSSE<T>(
   onError: (error: Event) => void
 ) {
   useEffect(() => {
-    const resolvedUrl = process.env.NEXT_PUBLIC_API_URL + url;
+    const resolvedUrl = config.apiUrl + url;
     const eventSource = new EventSource(resolvedUrl, { withCredentials: true });
 
     eventSource.onmessage = (event) => {
