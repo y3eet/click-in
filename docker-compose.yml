@@ -21,7 +21,6 @@ services:
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
 
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
-      WEB_URL: ${WEB_URL:-http://localhost:3000}
       BASE_URL: ${BASE_URL:-http://localhost:8080}
     ports:
       - "8080:8080"
@@ -32,9 +31,9 @@ services:
       context: ./web
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://backend:8080}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8080}
     environment:
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://backend:8080}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8080}
       PORT: "3000"
     ports:
       - "3000:3000"

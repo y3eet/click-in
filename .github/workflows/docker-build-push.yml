@@ -86,6 +86,8 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./web
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
           file: ./web/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
