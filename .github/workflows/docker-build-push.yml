@@ -87,7 +87,7 @@ jobs:
         with:
           context: ./web
           build-args: |
-            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+            NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
           file: ./web/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
